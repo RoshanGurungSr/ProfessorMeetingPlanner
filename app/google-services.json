@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "757370823015",
+    "project_id": "professormeetingplanner",
+    "storage_bucket": "professormeetingplanner.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:757370823015:android:80813ac000a9c23f8d8fc2",
+        "android_client_info": {
+          "package_name": "com.example.professormeetingplanner"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBh9d7cEj1vtIzf9XLl9aoIQKsjBdgrpNU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

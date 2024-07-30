@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">ProfessorMeetingPlanner</string>
+    <string name="cancel_description">Cancel appointment</string>
+    <string name="open">Open</string>
+    <string name="close">Close</string>
+    <string-array name="roles_array">
+        <item>Professor</item>
+        <item>Student</item>
+    </string-array>
+</resources>
