@@ -9,6 +9,8 @@ import android.graphics.Color
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
+import android.content.pm.PackageManager
 
 object NotificationHelper {
 
@@ -17,7 +19,6 @@ object NotificationHelper {
 
     // Create a notification
     fun createNotification(context: Context, title: String, message: String) {
-        // Create Notification Channel for Android O and above
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID,
@@ -48,7 +49,15 @@ object NotificationHelper {
             .setAutoCancel(true)
             .build()
 
-        // Display the notification
-        NotificationManagerCompat.from(context).notify(0, notification)
+        // Check if notification permission is granted
+        if (ContextCompat.checkSelfPermission(
+                context,
+                android.Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED) {
+            NotificationManagerCompat.from(context).notify(0, notification)
+        } else {
+            // Handle the case where permission is not granted
+            // You might want to inform the user or handle this situation appropriately
+        }
     }
 }
