@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.drawerlayout.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawerLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".AvailabilityActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!--TODO: Add code for availability-->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Select Days of the Week"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <CheckBox
+                    android:id="@+id/checkBoxMonday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Monday"
+                    tools:ignore="HardcodedText"/>
+
+                <CheckBox
+                    android:id="@+id/checkBoxTuesday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tuesday"
+                    tools:ignore="HardcodedText"/>
+
+                <CheckBox
+                    android:id="@+id/checkBoxWednesday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Wednesday"
+                    tools:ignore="HardcodedText"/>
+
+                <CheckBox
+                    android:id="@+id/checkBoxThursday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Thursday"
+                    tools:ignore="HardcodedText"/>
+
+                <CheckBox
+                    android:id="@+id/checkBoxFriday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Friday"
+                    tools:ignore="HardcodedText"/>
+
+                <CheckBox
+                    android:id="@+id/checkBoxSaturday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Saturday"
+                    tools:ignore="HardcodedText"/>
+
+                <CheckBox
+                    android:id="@+id/checkBoxSunday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Sunday"
+                    tools:ignore="HardcodedText"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp"
+                android:gravity="center_vertical">
+
+                <Button
+                    android:id="@+id/startAvailable"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Set Start Time"
+                    tools:ignore="HardcodedText"/>
+
+                <TextView
+                    android:id="@+id/startTimeTextView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Start Time: Not Set"
+                    android:textSize="16sp"
+                    android:layout_marginStart="8dp"
+                    tools:ignore="HardcodedText"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp"
+                android:gravity="center_vertical">
+
+                <Button
+                    android:id="@+id/endAvailable"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Set End Time"
+                    tools:ignore="HardcodedText"/>
+
+                <TextView
+                    android:id="@+id/endTimeTextView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="End Time: Not Set"
+                    android:textSize="16sp"
+                    android:layout_marginStart="8dp"
+                    tools:ignore="HardcodedText" />
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/courseNameList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Courses (comma separated)"
+                tools:ignore="HardcodedText"/>
+
+            <Button
+                android:id="@+id/btnSaveAvailability"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Save"
+                tools:ignore="HardcodedText"/>
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        app:headerLayout="@layout/nav_header"
+        app:menu="@menu/nav_menu"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true">
+
+    </com.google.android.material.navigation.NavigationView>
+
+
+</androidx.drawerlayout.widget.DrawerLayout>

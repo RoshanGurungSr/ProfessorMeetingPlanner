@@ -77,6 +77,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var adapter: AppointmentAdapter
     private val appointments = mutableListOf<Appointment>()
     private lateinit var databaseReference: DatabaseReference
+    private lateinit var userEmail: String
     private var isProfessor: Boolean = false // Track if the user is a professor
 
     @SuppressLint("MissingInflatedId")
@@ -85,7 +86,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         // Data Passing from Login
-        val userEmail: String = intent.getStringExtra("EMAIL").toString()
+        userEmail = intent.getStringExtra("EMAIL").toString()
 
         // Initialize Firebase Database reference
         databaseReference = FirebaseDatabase.getInstance().getReference("appointments")
@@ -104,8 +105,8 @@ class MainActivity : AppCompatActivity() {
         navView.setNavigationItemSelectedListener {
 
             when(it.itemId){
-                R.id.nav_home -> Toast.makeText(applicationContext, "Clicked Home",
-                    Toast.LENGTH_SHORT).show()
+                R.id.nav_home -> redirectHome()
+                R.id.nav_availability -> redirectAvailabiity()
                 R.id.nav_logout -> performLogout()
             }
 
@@ -200,6 +201,18 @@ class MainActivity : AppCompatActivity() {
 
         // Redirect to login screen
         val intent = Intent(this, LoginActivity::class.java)
+        startActivity(intent)
+        finish()
+    }
+
+    private fun redirectHome(){
+        val intent = Intent(this, MainActivity::class.java).apply {putExtra("EMAIL", userEmail) }
+        startActivity(intent)
+        finish()
+    }
+
+    private fun redirectAvailabiity(){
+        val intent = Intent(this, AvailabilityActivity::class.java).apply { putExtra("professorEmail", userEmail) }
         startActivity(intent)
         finish()
     }
