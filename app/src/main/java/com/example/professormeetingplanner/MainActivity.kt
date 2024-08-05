@@ -1,8 +1,6 @@
 package com.example.professormeetingplanner
 
 import android.annotation.SuppressLint
-import android.app.AlarmManager
-import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -31,7 +29,9 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Locale
+import android.util.Log
 
 data class Appointment(
     val studentName: String = "",
@@ -165,10 +165,87 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    // TODO: Old codes for notification
+//    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+//    private fun scheduleAppointmentNotifications() {
+//        if (isNotificationPermissionGranted()) {
+//            // FIXME: Currently have time only instead of date time. Use 24 hour format
+////            val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm a", Locale.getDefault())
+//
+//            // TODO: Use full date time
+//            val dateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+//
+//            for (appointment in appointments) {
+//                try {
+//                    val appointmentTime = Calendar.getInstance().apply {
+//                        time = dateFormat.parse(appointment.appointmentTime)!!
+//                    }
+//                    val currentTime = Calendar.getInstance()
+//
+//                    if (appointmentTime.after(currentTime)) {
+//                        NotificationScheduler.scheduleNotification(
+//                            this,
+//                            appointmentTime,
+//                            "Upcoming Appointment",
+//                            "You have an appointment with ${appointment.studentName} for ${appointment.courseName}."
+//                        )
+//                    }
+//                } catch (e: Exception) {
+//                    e.printStackTrace()
+//                }
+//            }
+//        } else {
+//            requestNotificationPermission()
+//        }
+//    }
+//
+//    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+//    private fun isNotificationPermissionGranted(): Boolean {
+//        return ContextCompat.checkSelfPermission(
+//            this,
+//            android.Manifest.permission.POST_NOTIFICATIONS
+//        ) == PackageManager.PERMISSION_GRANTED
+//    }
+//
+//    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+//    private fun requestNotificationPermission() {
+//        if (ContextCompat.checkSelfPermission(
+//                this,
+//                android.Manifest.permission.POST_NOTIFICATIONS
+//            ) != PackageManager.PERMISSION_GRANTED) {
+//            ActivityCompat.requestPermissions(
+//                this,
+//                arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+//                REQUEST_CODE_NOTIFICATION_PERMISSION
+//            )
+//        }
+//    }
+//
+//    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+//    override fun onRequestPermissionsResult(
+//        requestCode: Int,
+//        permissions: Array<out String>,
+//        grantResults: IntArray
+//    ) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+//        when (requestCode) {
+//            REQUEST_CODE_NOTIFICATION_PERMISSION -> {
+//                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                    // Permission granted
+//                    scheduleAppointmentNotifications()
+//                } else {
+//                    // Permission denied
+//                    Toast.makeText(this, "Notification permission denied", Toast.LENGTH_SHORT).show()
+//                }
+//            }
+//        }
+//    }
+    // TODO: Old codes for notification
+
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun scheduleAppointmentNotifications() {
         if (isNotificationPermissionGranted()) {
-            val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm a", Locale.getDefault())
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
 
             for (appointment in appointments) {
                 try {
@@ -176,6 +253,11 @@ class MainActivity : AppCompatActivity() {
                         time = dateFormat.parse(appointment.appointmentTime)!!
                     }
                     val currentTime = Calendar.getInstance()
+
+                    Log.d("Notification", "Appointments: ${appointments}, Appointment: , ${appointment}" +
+                            "Appointment Time is: ${appointmentTime}, " +
+                            "Current Time: $currentTime")
+                    Log.d("AppointmentCheck", "Check: ${appointmentTime.after(currentTime)}")
 
                     if (appointmentTime.after(currentTime)) {
                         NotificationScheduler.scheduleNotification(
@@ -204,10 +286,7 @@ class MainActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun requestNotificationPermission() {
-        if (ContextCompat.checkSelfPermission(
-                this,
-                android.Manifest.permission.POST_NOTIFICATIONS
-            ) != PackageManager.PERMISSION_GRANTED) {
+        if (!isNotificationPermissionGranted()) {
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
@@ -226,10 +305,8 @@ class MainActivity : AppCompatActivity() {
         when (requestCode) {
             REQUEST_CODE_NOTIFICATION_PERMISSION -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission granted
                     scheduleAppointmentNotifications()
                 } else {
-                    // Permission denied
                     Toast.makeText(this, "Notification permission denied", Toast.LENGTH_SHORT).show()
                 }
             }
