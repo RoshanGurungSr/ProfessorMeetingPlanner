@@ -3,6 +3,7 @@
     <style name="Base.Theme.ProfessorMeetingPlanner" parent="Theme.Material3.DayNight">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="android:windowBackground">@color/default_background_color</item>
     </style>
 
     <style name="Theme.ProfessorMeetingPlanner" parent="Base.Theme.ProfessorMeetingPlanner" />
