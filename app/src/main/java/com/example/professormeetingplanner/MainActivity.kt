@@ -6,6 +6,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -16,6 +17,7 @@ import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -87,6 +89,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var userEmail: String
     private var isProfessor: Boolean = false // Track if the user is a professor
 
+    companion object {
+        private const val REQUEST_CODE_NOTIFICATION_PERMISSION = 1001
+    }
+
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -113,7 +119,7 @@ class MainActivity : AppCompatActivity() {
 
             when(it.itemId){
                 R.id.nav_home -> redirectHome()
-                R.id.nav_availability -> redirectAvailabiity()
+                R.id.nav_availability -> redirectAvailability()
                 R.id.nav_logout -> performLogout()
             }
 
@@ -159,6 +165,7 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun scheduleAppointmentNotifications() {
         if (isNotificationPermissionGranted()) {
             val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm a", Locale.getDefault())
@@ -166,7 +173,7 @@ class MainActivity : AppCompatActivity() {
             for (appointment in appointments) {
                 try {
                     val appointmentTime = Calendar.getInstance().apply {
-                        time = dateFormat.parse(appointment.appointmentTime)
+                        time = dateFormat.parse(appointment.appointmentTime)!!
                     }
                     val currentTime = Calendar.getInstance()
 
@@ -187,6 +194,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun isNotificationPermissionGranted(): Boolean {
         return ContextCompat.checkSelfPermission(
             this,
@@ -194,6 +202,7 @@ class MainActivity : AppCompatActivity() {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun requestNotificationPermission() {
         if (ContextCompat.checkSelfPermission(
                 this,
@@ -207,6 +216,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -286,7 +296,7 @@ class MainActivity : AppCompatActivity() {
         finish()
     }
 
-    private fun redirectAvailabiity(){
+    private fun redirectAvailability(){
         val intent = Intent(this, AvailabilityActivity::class.java).apply { putExtra("professorEmail", userEmail) }
         startActivity(intent)
         finish()
