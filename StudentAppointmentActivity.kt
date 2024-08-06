@@ -225,6 +225,7 @@ class StudentAppointmentActivity : AppCompatActivity() {
 
         databaseReference.child("users").orderByChild("encodedEmail").equalTo(professorEncodedEmail)
             .get().addOnSuccessListener { dataSnapshot ->
+                selectedProfessorEncodedEmail = professorEncodedEmail
                 if (dataSnapshot.exists()) {
                     val availabilityStart = dataSnapshot.children.first().child("startAvailable").getValue(String::class.java)
                     val availabilityEnd = dataSnapshot.children.first().child("endAvailable").getValue(String::class.java)
