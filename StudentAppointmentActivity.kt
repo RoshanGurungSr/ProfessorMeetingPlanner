@@ -1,15 +1,11 @@
 package com.example.professormeetingplanner
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.Spinner
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import com.example.professormeetingplanner.R
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.GenericTypeIndicator
@@ -21,6 +17,7 @@ class StudentAppointmentActivity : AppCompatActivity() {
     private lateinit var professorSpinner: Spinner
     private lateinit var courseSpinner: Spinner
     private lateinit var timeSpinner: Spinner
+    private lateinit var datePicker: DatePicker
     private lateinit var saveButton: Button
     private lateinit var cancelButton: Button
 
@@ -31,8 +28,10 @@ class StudentAppointmentActivity : AppCompatActivity() {
     private var selectedProfessor: String? = null
     private var selectedProfessorEncodedEmail: String? = null
     private var selectedCourse: String? = null
+    private var selectedDate: Date? = null
     private var studentEmail: String? = null
     private var studentName: String? = null
+    private val availableDaysOfWeek = mutableListOf<Int>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +40,7 @@ class StudentAppointmentActivity : AppCompatActivity() {
         professorSpinner = findViewById(R.id.professor_spinner)
         courseSpinner = findViewById(R.id.course_spinner)
         timeSpinner = findViewById(R.id.time_spinner)
+        datePicker = findViewById(R.id.date_picker)
         saveButton = findViewById(R.id.save_appointment_button)
         cancelButton = findViewById(R.id.cancel_button)
 
@@ -71,11 +71,30 @@ class StudentAppointmentActivity : AppCompatActivity() {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 selectedCourse = parent.getItemAtPosition(position) as? String
                 selectedProfessor?.let {
-                    fetchAvailableTimes(it)
+                    fetchAvailableDaysOfWeek(it)
                 }
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
+
+        datePicker.init(Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH) { _, year, monthOfYear, dayOfMonth ->
+            val calendar = Calendar.getInstance()
+            calendar.set(year, monthOfYear, dayOfMonth)
+            val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
+            val selectedDateCalendar = Calendar.getInstance().apply {
+                set(year, monthOfYear, dayOfMonth)
+            }
+            selectedDate = selectedDateCalendar.time
+
+            // Check if the selected day is available
+            if (availableDaysOfWeek.contains(dayOfWeek)) {
+                fetchAvailableTimes()
+            } else {
+                Toast.makeText(this, "Selected date is not available", Toast.LENGTH_SHORT).show()
+                availableTimes.clear()
+                timeSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, availableTimes)
+            }
         }
 
         timeSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -149,26 +168,63 @@ class StudentAppointmentActivity : AppCompatActivity() {
                     if (courseNames != null) {
                         courses.addAll(courseNames)
                     } else {
-                        Log.d("StudentAppointment", "Course names not found or not a list")
+                        Log.d("StudentAppointment", "No courses found for professor: $professorName")
                     }
-                }
-                if (courses.isEmpty()) {
-                    Log.d("StudentAppointment", "No courses found for professor: $professorName")
                 }
                 val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, courses)
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 courseSpinner.adapter = adapter
-            }.addOnFailureListener { exception ->
-                Log.e("StudentAppointment", "Error fetching courses", exception)
+            }.addOnFailureListener {
+                Log.e("StudentAppointment", "Error fetching courses", it)
             }
     }
 
-    private fun fetchAvailableTimes(professorName: String) {
+    private fun fetchAvailableDaysOfWeek(professorName: String) {
         val professorEncodedEmail = professorEmailToCourse[professorName] ?: return
 
         databaseReference.child("users").orderByChild("encodedEmail").equalTo(professorEncodedEmail)
             .get().addOnSuccessListener { dataSnapshot ->
-                selectedProfessorEncodedEmail=professorEncodedEmail
+                if (dataSnapshot.exists()) {
+                    val userSnapshot = dataSnapshot.children.first()
+
+                    val daysOfWeekTypeIndicator = object : GenericTypeIndicator<List<String>>() {}
+                    val daysOfWeek = userSnapshot.child("daysOfWeek").getValue(daysOfWeekTypeIndicator)
+
+                    if (daysOfWeek != null) {
+                        availableDaysOfWeek.clear()
+                        val dayOfWeekMap = mapOf(
+                            "Sunday" to Calendar.SUNDAY,
+                            "Monday" to Calendar.MONDAY,
+                            "Tuesday" to Calendar.TUESDAY,
+                            "Wednesday" to Calendar.WEDNESDAY,
+                            "Thursday" to Calendar.THURSDAY,
+                            "Friday" to Calendar.FRIDAY,
+                            "Saturday" to Calendar.SATURDAY
+                        )
+
+                        for (day in daysOfWeek) {
+                            dayOfWeekMap[day]?.let {
+                                availableDaysOfWeek.add(it)
+                            }
+                        }
+                    } else {
+                        Log.d("StudentAppointment", "daysOfWeek field is null")
+                    }
+                } else {
+                    Log.d("StudentAppointment", "No data found for professor: $professorName")
+                }
+            }.addOnFailureListener {
+                Log.e("StudentAppointment", "Error fetching available days", it)
+            }
+    }
+
+    private fun fetchAvailableTimes() {
+        val professorName = selectedProfessor ?: return
+        val professorEncodedEmail = professorEmailToCourse[professorName] ?: return
+        if (selectedDate == null) return
+
+        databaseReference.child("users").orderByChild("encodedEmail").equalTo(professorEncodedEmail)
+            .get().addOnSuccessListener { dataSnapshot ->
                 if (dataSnapshot.exists()) {
                     val availabilityStart = dataSnapshot.children.first().child("startAvailable").getValue(String::class.java)
                     val availabilityEnd = dataSnapshot.children.first().child("endAvailable").getValue(String::class.java)
@@ -178,41 +234,36 @@ class StudentAppointmentActivity : AppCompatActivity() {
                         val endTime = convertStringToDate(availabilityEnd)
 
                         availableTimes = splitToHalfHourIntervals(startTime, endTime)
-                        removeBookedTimes(professorEncodedEmail)
+                        removeBookedTimes(professorEncodedEmail, SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(selectedDate!!))
 
                         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, availableTimes)
                         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                         timeSpinner.adapter = adapter
-                    } else {
-                        Log.d("StudentAppointment", "Availability data not found for professor: $professorName")
                     }
-                } else {
-                    Log.d("StudentAppointment", "No data found for encoded email: $professorEncodedEmail")
                 }
             }.addOnFailureListener {
                 Log.e("StudentAppointment", "Error fetching available times", it)
             }
     }
 
-    private fun removeBookedTimes(professorEncodedEmail: String) {
+    private fun removeBookedTimes(professorEncodedEmail: String, date: String) {
         databaseReference.child("appointments").orderByChild("professorEmail").equalTo(professorEncodedEmail)
             .get().addOnSuccessListener { dataSnapshot ->
                 val bookedTimes = mutableListOf<Date>()
                 for (appointmentSnapshot in dataSnapshot.children) {
                     val appointmentTime = appointmentSnapshot.child("appointmentTime").getValue(String::class.java)
-                    if (appointmentTime != null) {
+                    val appointmentDate = appointmentSnapshot.child("appointmentDate").getValue(String::class.java)
+                    if (appointmentTime != null && appointmentDate == date) {
                         val bookedDate = convertStringToDate(appointmentTime)
                         bookedTimes.add(bookedDate)
                     }
                 }
 
-                // Remove booked times from availableTimes
                 availableTimes = availableTimes.filter { time ->
                     val timeDate = convertStringToDate(time)
                     !bookedTimes.contains(timeDate)
                 }.toMutableList()
 
-                // Update spinner after removing booked times
                 val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, availableTimes)
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 timeSpinner.adapter = adapter
@@ -221,33 +272,14 @@ class StudentAppointmentActivity : AppCompatActivity() {
             }
     }
 
-    private fun convertStringToDate(dateString: String): Date {
-        val formatter = SimpleDateFormat("HH:mm", Locale.getDefault())
-        return formatter.parse(dateString) ?: Date()
-    }
-
-    private fun splitToHalfHourIntervals(start: Date, end: Date): MutableList<String> {
-        val intervals = mutableListOf<String>()
-        val calendar = Calendar.getInstance().apply {
-            time = start
-        }
-
-        while (calendar.time.before(end)) {
-            val time = SimpleDateFormat("HH:mm", Locale.getDefault()).format(calendar.time)
-            intervals.add(time)
-            calendar.add(Calendar.MINUTE, 30)
-        }
-        return intervals
-    }
-
     private fun saveAppointment() {
         val selectedTime = timeSpinner.selectedItem.toString()
-        val professorEmail=professorSpinner.selectedItem.toString()
         val appointment = mapOf(
             "studentName" to studentName,
             "email" to studentEmail,
             "professorEmail" to selectedProfessorEncodedEmail,
             "courseName" to selectedCourse,
+            "appointmentDate" to SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(selectedDate!!),
             "appointmentTime" to selectedTime
         )
 
@@ -259,5 +291,23 @@ class StudentAppointmentActivity : AppCompatActivity() {
             .addOnFailureListener {
                 Toast.makeText(this, "Failed to save appointment", Toast.LENGTH_SHORT).show()
             }
+    }
+
+    private fun convertStringToDate(timeString: String): Date {
+        val format = SimpleDateFormat("HH:mm", Locale.getDefault())
+        return format.parse(timeString)!!
+    }
+
+    private fun splitToHalfHourIntervals(startTime: Date, endTime: Date): MutableList<String> {
+        val intervals = mutableListOf<String>()
+        val calendar = Calendar.getInstance()
+        calendar.time = startTime
+
+        while (calendar.time.before(endTime)) {
+            intervals.add(SimpleDateFormat("HH:mm", Locale.getDefault()).format(calendar.time))
+            calendar.add(Calendar.MINUTE, 30)
+        }
+
+        return intervals
     }
 }
