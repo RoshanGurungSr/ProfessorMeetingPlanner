@@ -14,14 +14,23 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/professor_spinner"
-        android:layout_marginTop="30dp" />
+        android:layout_marginTop="20dp" />
+
+    <DatePicker
+        android:id="@+id/date_picker"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/course_spinner"
+        android:layout_marginTop="20dp"
+        android:calendarViewShown="false"
+        android:spinnersShown="true" />
 
     <Spinner
         android:id="@+id/time_spinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/course_spinner"
-        android:layout_marginTop="30dp" />
+        android:layout_below="@id/date_picker"
+        android:layout_marginTop="20dp" />
 
     <Button
         android:id="@+id/save_appointment_button"
@@ -31,7 +40,7 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:layout_marginStart="100dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="20dp"
         android:layout_marginEnd="100dp"
         android:text="Save Appointment" />
 
@@ -43,7 +52,7 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:layout_marginStart="100dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="20dp"
         android:layout_marginEnd="100dp"
         android:text="Cancel" />
 
