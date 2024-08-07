@@ -40,6 +40,7 @@ class SignUpActivity : AppCompatActivity() {
             val email = etEmailSignUp.text.toString()
             val password = etPasswordSignUp.text.toString()
             val role = spinnerRole.selectedItem.toString()
+            val encodedEmail = email.replace(".", "_")
 
             if (firstName.isNotEmpty() && lastName.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
                 auth.createUserWithEmailAndPassword(email, password)
@@ -50,7 +51,7 @@ class SignUpActivity : AppCompatActivity() {
 
                             // Save user details to the database
                             val user = auth.currentUser
-                            saveUserDetails(user?.uid, firstName, lastName, email, role)
+                            saveUserDetails(user?.uid, firstName, lastName, email, role, encodedEmail)
                         } else {
                             Toast.makeText(this, "Registration failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                         }
@@ -61,7 +62,7 @@ class SignUpActivity : AppCompatActivity() {
         }
     }
 
-    private fun saveUserDetails(userId: String?, firstName: String, lastName: String, email: String, role: String) {
+    private fun saveUserDetails(userId: String?, firstName: String, lastName: String, email: String, role: String, encodedEmail: String) {
         if (userId == null) {
             Toast.makeText(this, "User ID is null", Toast.LENGTH_SHORT).show()
             return
@@ -72,7 +73,8 @@ class SignUpActivity : AppCompatActivity() {
             "firstName" to firstName,
             "lastName" to lastName,
             "email" to email,
-            "role" to role
+            "role" to role,
+            "encodedEmail" to encodedEmail
         )
 
         userRef.setValue(userDetails).addOnCompleteListener { task ->
