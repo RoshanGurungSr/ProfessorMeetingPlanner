@@ -3,6 +3,7 @@ package com.example.professormeetingplanner
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -18,6 +19,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
@@ -26,6 +29,9 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 data class Appointment(
     val studentName: String = "",
@@ -83,10 +89,16 @@ class MainActivity : AppCompatActivity() {
     private lateinit var userEmail: String
     private var isProfessor: Boolean = false // Track if the user is a professor
 
+    companion object {
+        private const val REQUEST_CODE_NOTIFICATION_PERMISSION = 1001
+    }
+
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        databaseReference = FirebaseDatabase.getInstance().getReference("appointments")
 
         // Data Passing from Login
         userEmail = intent.getStringExtra("EMAIL").toString()
@@ -185,6 +197,76 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this@MainActivity, "Failed to load appointments.", Toast.LENGTH_SHORT).show()
             }
         })
+    }
+
+    private fun scheduleAppointmentNotifications() {
+        if (isNotificationPermissionGranted()) {
+            val dateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+
+            for (appointment in appointments) {
+                try {
+                    val appointmentTime = Calendar.getInstance().apply {
+                        time = dateFormat.parse(appointment.appointmentTime)!!
+                    }
+                    val currentTime = Calendar.getInstance()
+                    val ss = appointment.appointmentTime.split(":")
+                    currentTime.set(Calendar.HOUR_OF_DAY,Integer.parseInt(ss[0]))
+                    currentTime.set(Calendar.MINUTE,Integer.parseInt(ss[1]))
+                    currentTime.set(Calendar.SECOND,0)
+
+                    //if (appointmentTime.after(currentTime)) {
+                    NotificationScheduler.scheduleNotificationForBoth(
+                        this,
+                        currentTime,
+                        appointment
+                    )
+                    //}
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        } else {
+            requestNotificationPermission()
+        }
+    }
+
+    private fun isNotificationPermissionGranted(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            this,
+            android.Manifest.permission.POST_NOTIFICATIONS
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun requestNotificationPermission() {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                REQUEST_CODE_NOTIFICATION_PERMISSION
+            )
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            REQUEST_CODE_NOTIFICATION_PERMISSION -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission granted
+                    scheduleAppointmentNotifications()
+                } else {
+                    // Permission denied
+                    Toast.makeText(this, "Notification permission denied", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 
     private fun updateNavHeader(headerView: View, userEmail: String, callback: (Boolean) -> Unit) {

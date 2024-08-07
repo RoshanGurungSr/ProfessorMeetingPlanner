@@ -6,6 +6,8 @@ import android.content.Intent
 
 class NotificationReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
+        println("We are here!!!!!!!")
+
         val title = intent.getStringExtra("title") ?: "Appointment Reminder"
         val message = intent.getStringExtra("message") ?: "You have an upcoming appointment."
 

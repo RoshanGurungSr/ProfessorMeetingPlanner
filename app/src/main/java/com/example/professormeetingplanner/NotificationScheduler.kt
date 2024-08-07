@@ -20,7 +20,10 @@ object NotificationScheduler {
 
         // Schedule the notification 10 minutes before the actual appointment time
         val notificationTimeInMillis = notificationTime.timeInMillis - 10 * 60 * 1000
+        println("We have " + notificationTime.time)
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, notificationTimeInMillis, pendingIntent)
+        //NotificationHelper.createNotification(context, title, message)
+
     }
 
     fun scheduleNotificationForBoth(context: Context, notificationTime: Calendar, appointment: Appointment) {
