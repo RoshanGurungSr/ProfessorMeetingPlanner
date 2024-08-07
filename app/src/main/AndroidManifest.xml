@@ -19,6 +19,8 @@
             android:exported="true" />
         <activity android:name=".AvailabilityActivity"
             android:exported="true" />
+        <activity android:name=".StudentAppointmentActivity"
+            android:exported="true" />
         <activity
             android:name=".LoginActivity"
             android:exported="true">
