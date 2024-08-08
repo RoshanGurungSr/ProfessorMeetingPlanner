@@ -191,6 +191,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 adapter.notifyDataSetChanged()
+                scheduleAppointmentNotifications()
             }
 
             override fun onCancelled(databaseError: DatabaseError) {

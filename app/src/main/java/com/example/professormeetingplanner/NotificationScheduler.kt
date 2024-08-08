@@ -16,12 +16,12 @@ object NotificationScheduler {
             putExtra("title", title)
             putExtra("message", message)
         }
-        val pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
 
         // Schedule the notification 10 minutes before the actual appointment time
         val notificationTimeInMillis = notificationTime.timeInMillis - 10 * 60 * 1000
         println("We have " + notificationTime.time)
-        alarmManager.setExact(AlarmManager.RTC_WAKEUP, notificationTimeInMillis, pendingIntent)
+        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, notificationTimeInMillis, pendingIntent)
         //NotificationHelper.createNotification(context, title, message)
 
     }
