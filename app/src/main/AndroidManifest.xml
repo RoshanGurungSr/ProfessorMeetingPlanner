@@ -29,6 +29,8 @@
             android:exported="true" />
         <activity android:name=".StudentAppointmentActivity"
             android:exported="true" />
+        <activity android:name=".ForgetPasswordActivity"
+            android:exported="true" />
         <activity
             android:name=".LoginActivity"
             android:exported="true">
