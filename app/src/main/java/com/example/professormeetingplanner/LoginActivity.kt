@@ -19,6 +19,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var btnLogin: Button
     private lateinit var cbShowPassword: CheckBox
     private lateinit var tvSignUp: TextView
+    private lateinit var forgetPassword: TextView
     private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,6 +31,8 @@ class LoginActivity : AppCompatActivity() {
         btnLogin = findViewById(R.id.btnLogin)
         cbShowPassword = findViewById(R.id.cbShowPassword)
         tvSignUp = findViewById(R.id.tvSignUp)
+        forgetPassword = findViewById(R.id.forgetPassword)
+
         auth = FirebaseAuth.getInstance()
 
         cbShowPassword.setOnCheckedChangeListener { _, isChecked ->
@@ -64,6 +67,11 @@ class LoginActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(this, "Please fill in all fields.", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        forgetPassword.setOnClickListener{
+            val intent = Intent(this, ForgetPasswordActivity::class.java)
+            startActivity(intent)
         }
 
         tvSignUp.setOnClickListener {
