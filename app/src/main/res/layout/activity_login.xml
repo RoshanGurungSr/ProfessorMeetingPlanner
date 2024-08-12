@@ -54,6 +54,17 @@
             tools:ignore="HardcodedText" />
     </RelativeLayout>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/forgetPassword"
+        android:text="Forget Password"
+        android:textSize="14sp"
+        android:layout_gravity="start"
+        android:layout_marginBottom="24dp"
+        android:textColor="@android:color/holo_blue_dark"
+        tools:ignore="HardcodedText" />
+
     <Button
         android:id="@+id/btnLogin"
         android:layout_width="wrap_content"
