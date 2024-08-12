@@ -29,7 +29,7 @@ object NotificationScheduler {
     fun scheduleNotificationForBoth(context: Context, notificationTime: Calendar, appointment: Appointment) {
         val title = "Upcoming Appointment"
         val messageForStudent = "You have an appointment with ${appointment.studentName} for ${appointment.courseName}."
-        val messageForProfessor = "You have an appointment with ${appointment.email} for ${appointment.courseName}."
+        val messageForProfessor = "You have an appointment for ${appointment.courseName}."
 
         scheduleNotification(context, notificationTime, title, messageForStudent)
         scheduleNotification(context, notificationTime, title, messageForProfessor)
